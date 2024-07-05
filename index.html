@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+</head>
+<body>
+    Name: <input type="text" id="name">
+    Email: <input type="text" id="email">
+    <button id="btn">Submit</button>
+    <div id="cont"> </div>
+</body>
+<script>
+    async function postdata(){
+        let obj={
+            name:document.getElementById("name").value,
+            email:document.getElementById("email").value
+        }
+        try{
+        let res=await axios.post("http://localhost:3030/data", obj)  
+        console.log(res)   
+        } catch (error){
+            console.log(error)
+
+        }
+    }
+    let btn=document.getElementById("btn")
+    // btn.addEventListener("click", postdata)
+
+
+
+    async function getdata(){
+        try{
+            let res=await axios.get("http://localhost:3030/data")
+            displaydata(res.data)
+            console.log(res.data)
+        }
+        catch(error){
+            console.log(error)
+    }
+    }
+    getdata()
+
+
+ async function displaydata (data){
+    data.map((ele)=>{
+        let div=document.createElement("div")
+        let name=document.createElement("h1")
+        name.innerText=ele.name
+        let email=document.createElement("h3")
+        email.innerText=ele.email
+        let btn1=document.createElement("button")
+        btn1.innerText="edit"
+        btn1.addEventListener("click", () =>{
+            getdataforedit(ele);
+        })
+        let del=document.createElement("button")
+        del.innerText="delete"
+
+        del.addEventListener("click", ()=>{
+            deletdata(ele.id)
+            alert("deleted")
+            displaydata(res.data)
+        })
+        div.append(name,email,btn1,del)
+        cont.append(div)
+    });
+
+ }
+ displaydata()
+async function deletdata(id){
+ try{
+    let res=await axios.delete(`http://localhost:3030/data/${id}`)
+    console.log(res)
+    }
+    catch(error){
+        console.log(error)
+        }
+}
+
+
+ function getdataforedit(data){
+    let obj={
+        name:(document.getElementById("name").value=data.name),
+        email:(document.getElementById("email").value=data.email),
+        
+    }
+    btn.innerText="update"
+    state=true;
+    currentid= data.id;
+ }
+
+ async function updatedata(){
+    let updateobj= {
+        name:document.getElementById("name").value,
+        email:document.getElementById("email").value,
+    };
+    try{
+    let res=await axios.patch(`http://localhost:3030/data/${currentid}`,updateobj
+);
+alert("updated")
+} catch (error){
+    console.log(error)
+}
+ }
+ btn.addEventListener("click",()=>{
+    if(state==true){
+        updatedata()
+        } else{
+            postdata()
+        }
+ });
+</script>
+</html>
