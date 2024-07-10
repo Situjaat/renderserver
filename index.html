@@ -6,21 +6,124 @@
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
 </head>
+<style>
+   /* styles.css */
+#form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:active {
+  background-color: #0056b3;
+}
+
+button:focus {
+  outline: none;
+}
+
+
+    /* styles.css */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+h1, h3 {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+tbody {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+</style>
 <body>
-    Name: <input type="text" id="name">
-    Email: <input type="text" id="email">
+    <form id="form">
+    Name: <input type="text" id="name"><br><br>
+
+    Email: <input type="text" id="email"><br><br>
     <button id="btn">Submit</button>
+</form>
     <div id="cont"> </div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Action</th>
+            <tbody id="tbody">
+
+            </tbody>
+        </tr>
+    </table>
 </body>
 <script>
+    let form=document.getElementById("form")
+    let name=document.getElementById("name")
+    let email=document.getElementById("email")
+    let state=false
+    let arr=[]
     async function postdata(){
         let obj={
             name:document.getElementById("name").value,
             email:document.getElementById("email").value
         }
         try{
-        let res=await axios.post("https://renderserver-3.onrender.com/data", obj)  
-        console.log(res)   
+        let res=await axios.post("http://localhost:8080/data", obj)  
+        console.log(res) 
+        getdata()  
+        form.reset()
         } catch (error){
             console.log(error)
 
@@ -33,24 +136,34 @@
 
     async function getdata(){
         try{
-            let res=await axios.get("https://renderserver-3.onrender.com/data")
-            displaydata(res.data)
+            let res=await axios.get("http://localhost:8080/data")
+            arr=res.data;
+            displaydata()
             console.log(res.data)
         }
         catch(error){
             console.log(error)
     }
     }
-    getdata()
+   
 
 
- async function displaydata (data){
-    data.map((ele)=>{
-        let div=document.createElement("div")
+ async function displaydata (){
+    let cont=document.getElementById("cont")
+    cont.innerHTML=""
+    arr.map((ele)=>{
+let tbody=document.getElementById("tbody")
+let tr=document.createElement("tr")
+let td1=document.createElement("td")
+
         let name=document.createElement("h1")
         name.innerText=ele.name
+        td1.append(name)
+        let td2=document.createElement("td")
         let email=document.createElement("h3")
         email.innerText=ele.email
+        td2.append(email)
+        let td3=document.createElement("td")
         let btn1=document.createElement("button")
         btn1.innerText="edit"
         btn1.addEventListener("click", () =>{
@@ -62,18 +175,21 @@
         del.addEventListener("click", ()=>{
             deletdata(ele.id)
             alert("deleted")
-            displaydata(res.data)
+            // displaydata(res.data)
+            getdata()
         })
-        div.append(name,email,btn1,del)
-        cont.append(div)
+        td3.append(btn1,del)
+        tr.append(td1,td2,td3)
+        tbody.append(tr)
     });
 
  }
- displaydata()
+//  displaydata()
 async function deletdata(id){
  try{
-    let res=await axios.delete(`https://renderserver-3.onrender.com/data/${id}`)
+    let res=await axios.delete(`http://localhost:8080/data/${id}`)
     console.log(res)
+    getdata()
     }
     catch(error){
         console.log(error)
@@ -98,19 +214,24 @@ async function deletdata(id){
         email:document.getElementById("email").value,
     };
     try{
-    let res=await axios.patch(`https://renderserver-3.onrender.com/data/${currentid}`,updateobj
+    let res=await axios.patch(`http://localhost:8080/data/${currentid}`,updateobj
 );
 alert("updated")
+getdata()
+state=false
+form.reset();
 } catch (error){
     console.log(error)
 }
  }
- btn.addEventListener("click",()=>{
-    if(state==true){
+ btn.addEventListener("click",(e)=>{
+    e.preventDefault()
+    if(state){
         updatedata()
         } else{
             postdata()
         }
  });
+ getdata()
 </script>
 </html>
